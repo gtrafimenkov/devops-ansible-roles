@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2020 Gennady Trafimenkov
+
+---
+
+- name: Enable https transport
+  apt: name=apt-transport-https state=present update_cache=true cache_valid_time=3600
+  become: yes
+
+- name: Add release gpg key
+  apt_key: url=https://syncthing.net/release-key.txt state=present
+  become: yes
+
+- name: Add apt repository
+  apt_repository: repo="deb https://apt.syncthing.net/ syncthing candidate" state=present
+  register: add_repo_result
+  become: yes
+
+- name: Update apt cache
+  apt: update_cache=yes
+  when: add_repo_result.changed == true
+  become: yes
+
+- name: Install syncthing
+  apt: name=syncthing state=present
+  become: yes
